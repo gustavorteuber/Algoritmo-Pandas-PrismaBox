@@ -61,6 +61,14 @@ def highlight_duplicates(s):
 def highlight_invalid(s):
     return ['background-color: red' if len(re.sub('\D', '', str(v))) <= 9 else '' for v in s]
 
+# Função de estilo para pintar as células inválidas da coluna "Estado (Dois dígitos)" de vermelho
+def highlight_invalid_state(s):
+    estados = {
+        'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS',
+        'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC',
+        'SP', 'SE', 'TO'
+    }
+    return ['background-color: red' if v.upper() not in estados else '' for v in s]
 
 # Arrumar Siglas da maneira adequada:
 
@@ -101,9 +109,8 @@ df['Estado (Dois dígitos)'] = df['Estado (Dois dígitos)'].str.normalize('NFKD'
 # Transforma a coluna "Estado (Dois dígitos)" em maiúsculas
 df['Estado (Dois dígitos)'] = df['Estado (Dois dígitos)'].str.upper()
 
-styled_df = df.style.apply(highlight_duplicates, subset=['CPF ou CNPJ', 'Celular']).apply(highlight_invalid, subset=['Celular'])
+styled_df = df.style.apply(highlight_duplicates, subset=['CPF ou CNPJ', 'Celular']).apply(highlight_invalid, subset=['Celular']).apply(highlight_invalid_state, subset=['Estado (Dois dígitos)'])
 
 styled_df.to_excel('dados_formatados.xlsx', index=False)
 
 print('Correções e flags colocadas com sucesso!')
-
