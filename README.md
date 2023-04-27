@@ -6,13 +6,11 @@ Este é um script Python que faz correções em um arquivo Excel com informaçõ
 
 Para rodar o script, é necessário ter o Python 3 instalado na sua máquina, além das bibliotecas Pandas, xlsxwriter e unidecode. As dependências podem ser instaladas com os seguintes comandos em um terminal:
 
-Certifique-se de ter o Python 3 instalado em seu computador. Você pode baixar o Python em [python.org](https://www.python.org/).
-
-Instale as dependências usando o pip. Abra o terminal ou prompt de comando e digite o seguinte comando:
-
 ```shell
 pip install pandas xlsxwriter unidecode
 ```
+
+Certifique-se de ter o Python 3 instalado em seu computador. Você pode baixar o Python em [python.org](https://www.python.org/).
 
 ## Como Usar
 
