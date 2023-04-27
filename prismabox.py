@@ -1,6 +1,7 @@
 import pandas as pd
 import re
 from tkinter import Tk
+import unidecode
 from tkinter.filedialog import askopenfilename
 import xlsxwriter
 
@@ -47,16 +48,62 @@ df['CPF ou CNPJ'] = df['CPF ou CNPJ'].apply(format_cpf_cnpj)
 # Formata número de celular
 df['Celular'] = df['Celular'].apply(format_phone)
 
-# Função de estilo para pintar as células duplicadas da coluna de amarelo
+# Função de estilo para pintar as células duplicadas da coluna de amarelo ou azul
 def highlight_duplicates(s):
-    return ['background-color: yellow' if v and df.duplicated(subset=[s.name], keep=False).iloc[i] else '' for i,v in enumerate(s)]
+    if s.name == 'CPF ou CNPJ':
+        return ['background-color: yellow' if v and df.duplicated(subset=[s.name], keep=False).iloc[i] else '' for i,v in enumerate(s)]
+    elif s.name == 'Celular':
+        return ['background-color: blue' if v and df.duplicated(subset=[s.name], keep=False).iloc[i] else '' for i,v in enumerate(s)]
+    else:
+        return ['' for i in enumerate(s)]
 
 # Função de estilo para pintar as células inválidas da coluna de vermelho
 def highlight_invalid(s):
     return ['background-color: red' if len(re.sub('\D', '', str(v))) <= 9 else '' for v in s]
 
-# Aplicar as funções de estilo nas colunas "CPF ou CNPJ" e "Celular"
-styled_df = df.style.apply(highlight_duplicates, subset=['CPF ou CNPJ']).apply(highlight_invalid, subset=['Celular'])
 
-# Salvar o arquivo Excel com as células pintadas
+# Arrumar Siglas da maneira adequada:
+
+# Dicionário com as siglas dos estados brasileiros
+estados = {
+    'acre': 'AC',
+    'alagoas': 'AL',
+    'amapa': 'AP',
+    'amazonas': 'AM',
+    'bahia': 'BA',
+    'ceara': 'CE',
+    'distrito federal': 'DF',
+    'espirito santo': 'ES',
+    'goias': 'GO',
+    'maranhao': 'MA',
+    'mato grosso': 'MT',
+    'mato grosso do sul': 'MS',
+    'minas gerais': 'MG',
+    'para': 'PA',
+    'paraiba': 'PB',
+    'parana': 'PR',
+    'pernambuco': 'PE',
+    'piaui': 'PI',
+    'rio de janeiro': 'RJ',
+    'rio grande do norte': 'RN',
+    'rio grande do sul': 'RS',
+    'rondonia': 'RO',
+    'roraima': 'RR',
+    'santa catarina': 'SC',
+    'sao paulo': 'SP',
+    'sergipe': 'SE',
+    'tocantins': 'TO'
+}
+
+# Substitui os nomes dos estados pelas siglas na coluna "Estado (Dois dígitos)"
+df['Estado (Dois dígitos)'] = df['Estado (Dois dígitos)'].str.normalize('NFKD').apply(unidecode.unidecode).str.lower().replace(estados)
+
+# Transforma a coluna "Estado (Dois dígitos)" em maiúsculas
+df['Estado (Dois dígitos)'] = df['Estado (Dois dígitos)'].str.upper()
+
+styled_df = df.style.apply(highlight_duplicates, subset=['CPF ou CNPJ', 'Celular']).apply(highlight_invalid, subset=['Celular'])
+
 styled_df.to_excel('dados_formatados.xlsx', index=False)
+
+print('Correções e flags colocadas com sucesso!')
+
