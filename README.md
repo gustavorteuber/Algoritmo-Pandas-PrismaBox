@@ -44,13 +44,15 @@ python prismabox.py
 
 4. O script é composto por algumas funções que realizam as seguintes operações:
 
-- format_cpf_cnpj(value): recebe um valor e formata para o padrão de CPF ou CNPJ brasileiro, dependendo do tamanho do valor.
+- format_cpf_cnpj(value): Recebe um valor e formata para o padrão de CPF ou CNPJ brasileiro, dependendo do tamanho do valor.
 
-- format_phone(value): recebe um valor e formata para o padrão de telefone brasileiro com DDD, adicionando o "9" para números de celular com 10 dígitos.
+- format_phone(value): Recebe um valor e formata para o padrão de telefone brasileiro com DDD, adicionando o "9" para números de celular com 10 dígitos.
 
-- highlight_duplicates(s): recebe uma coluna de dados e retorna uma lista com o estilo das células duplicadas, destacando com cor amarela para CPF/CNPJ e azul para celular.
+- highlight_duplicates(s): Recebe uma coluna de dados e retorna uma lista com o estilo das células duplicadas, destacando com cor amarela para CPF/CNPJ e azul para celular.
 
-- highlight_invalid(s): recebe uma coluna de dados e retorna uma lista com o estilo das células inválidas, destacando com cor vermelha para valores que possuem menos de 10 dígitos.
+- highlight_invalid(s): Recebe uma coluna de dados e retorna uma lista com o estilo das células inválidas, destacando com cor vermelha para valores que possuem menos de 10 dígitos.
+
+- highlight_invalid_state(s): A função recebe uma Series (coluna) de valores, e retorna uma lista de estilos em formato de string, onde os valores que não estiverem na lista de estados são pintados de vermelho.
 
 Além disso, o script também faz uma correção na coluna "Estado (Dois dígitos)", substituindo o nome do estado por sua sigla de duas letras, e transforma todos os valores em maiúsculas.
 
