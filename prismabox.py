@@ -1,57 +1,31 @@
 import pandas as pd
 import re
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 
-# Função para formatar o número de celular
-def formatar_celular(celular):
-    # Remove todos os caracteres que não sejam números
-    numeros = re.sub(r'\D', '', celular)
-    # Verifica se o número tem 11 dígitos (sem o DDD)
-    if len(numeros) == 11:
-        # Formata como (XX)XXXXX-XXXX
-        celular_formatado = f'({numeros[:2]}){numeros[2:7]}-{numeros[7:]}'
-    # Verifica se o número tem 10 dígitos (sem o DDD)
-    elif len(numeros) == 10:
-        # Formata como (XX)XXXX-XXXX
-        celular_formatado = f'({numeros[:2]}){numeros[2:6]}-{numeros[6:]}'
-    # Se não estiver nos formatos conhecidos, retorna o número original
+def format_cpf_cnpj(value):
+    # Extrai apenas os dígitos
+    digits = re.sub('\D', '', str(value))
+    # Formata CPF (11 caracteres)
+    if len(digits) == 11:
+        return f'{digits[:3]}.{digits[3:6]}.{digits[6:9]}-{digits[9:]}'
+    # Formata CNPJ (14 caracteres)
+    elif len(digits) == 14:
+        return f'{digits[:2]}.{digits[2:5]}.{digits[5:8]}/{digits[8:12]}-{digits[12:]}'
+    # Retorna valor original se não for CPF nem CNPJ
     else:
-        celular_formatado = celular
-    return celular_formatado
+        return value
 
-# Carrega a planilha para o pandas
-df = pd.read_excel('clientes.xlsx')
+# Abre a janela de seleção de arquivo
+root = Tk()
+root.withdraw()
+filename = askopenfilename()
 
-# Cria uma lista vazia para armazenar os CPFs e CNPJs inválidos
-invalidos = []
+# Lê o arquivo
+df = pd.read_excel(filename)
 
-# Loop pelos registros da planilha
-for i, row in df.iterrows():
-    # Formata o CPF ou CNPJ
-    if 11 <= len(str(row['CPF ou CNPJ'])) <= 14:
-        cpf = f'{row["CPF ou CNPJ"][:3]}.{row["CPF ou CNPJ"][3:6]}.{row["CPF ou CNPJ"][6:9]}-{row["CPF ou CNPJ"][9:]}'
-        df.at[i, 'CPF ou CNPJ'] = cpf
-    elif 14 <= len(str(row['CPF ou CNPJ'])) <= 18:
-        cnpj = f'{row["CPF ou CNPJ"][:2]}.{row["CPF ou CNPJ"][2:5]}.{row["CPF ou CNPJ"][5:8]}/{row["CPF ou CNPJ"][8:12]}-{row["CPF ou CNPJ"][12:]}'
-        df.at[i, 'CPF ou CNPJ'] = cnpj
-    else:
-        invalidos.append(row['CPF ou CNPJ'])
-    # Formata o celular
-    df.at[i, 'Celular'] = formatar_celular(str(row['Celular']))
+# Formata CPF ou CNPJ
+df['CPF ou CNPJ'] = df['CPF ou CNPJ'].apply(format_cpf_cnpj)
 
-# Cria uma planilha somente com os CPFs e CNPJs inválidos
-df_invalidos = pd.DataFrame({'CPF ou CNPJ': invalidos})
-
-# Verifica os CPFs duplicados
-cpf_duplicados = df[df['CPF ou CNPJ'].duplicated(keep=False)]
-
-# Cria uma planilha somente com os CPFs duplicados
-df_duplicados = cpf_duplicados.sort_values('CPF ou CNPJ').drop_duplicates(subset='CPF ou CNPJ', keep='first')
-
-# Salva as planilhas em arquivos .xlsx
-with pd.ExcelWriter('corrigidakkkk.xlsx') as writer:
-    df.to_excel(writer, sheet_name='Tabela Original', index=False)
-with pd.ExcelWriter('cpjs_duplicados.xlsx') as writer:
-    df_cnpj_duplicados.to_excel(writer, sheet_name='CNPJs ou CPFs Duplicados', index=False)
-    df_invalidos.to_excel(writer, sheet_name='CPF ou CNPJ Inválidos', index=False)
-    df_duplicados.to_excel(writer, sheet_name='CPF ou CNPJ Duplicados', index=False)
-
+# Cria um novo arquivo Excel com os dados formatados
+df.to_excel('dados_formatados.xlsx', index=False)
